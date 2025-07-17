@@ -13,7 +13,7 @@ public class SolarSystem {
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY)
 	@Column(name="id")
-	private int id;
+	private int id = 0;
 	
 	@Column(name="system_name")
 	private String systemName;

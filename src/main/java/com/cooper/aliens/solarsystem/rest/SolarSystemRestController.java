@@ -62,6 +62,10 @@ public class SolarSystemRestController {
 	
 	@PutMapping( "/solarsystems")
 	public SolarSystem updateSolarSystem( @RequestBody SolarSystem theSolarSystem) {
+		
+		if (theSolarSystem.getId()==0 ) {
+			throw new SolarSystemInvalidRequestException("SolarSystem id should not be set in PutMapping");
+		}
 		SolarSystem dbSolarSystem = this.solarSystemService.save(theSolarSystem);
 		
 		// TODO add logic to ensure the id is set.
@@ -83,16 +87,19 @@ public class SolarSystemRestController {
 
 	@PatchMapping("solarsystems/{solarSystemId}")
 	public SolarSystem patchSolarSystem( @PathVariable int solarSystemId, @RequestBody Map<String, Object> patchPayload) {
-		SolarSystem tempSolarSystem = this.solarSystemService.findById(solarSystemId);
-		
-		if (tempSolarSystem == null) {
-			throw new SolarSystemNotFoundException("SolorSystem id not found - " + solarSystemId);
-			
-		}
 		
 		if ( patchPayload.containsKey("id")) {
 			throw new SolarSystemInvalidRequestException("SolarSystem id not allowed in the request body - " + solarSystemId);
 		}
+		
+		SolarSystem tempSolarSystem = this.solarSystemService.findById(solarSystemId);
+		
+		if (tempSolarSystem == null) {
+			throw new SolarSystemNotFoundException("SolarSystem id not found - " + solarSystemId);
+			
+		}
+		
+		
 		
 		SolarSystem patchedSolarSystem = apply( patchPayload, tempSolarSystem);
 		
