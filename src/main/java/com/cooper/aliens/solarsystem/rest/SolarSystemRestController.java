@@ -18,6 +18,8 @@ import com.cooper.aliens.solarsystem.service.SolarSystemService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.cooper.aliens.solarsystem.entity.SolarSystem;
+import com.cooper.aliens.solarsystem.rest.exception.SolarSystemInvalidRequestException;
+import com.cooper.aliens.solarsystem.rest.exception.SolarSystemNotFoundException;
 
 @RestController
 @RequestMapping("/api")
@@ -42,7 +44,7 @@ public class SolarSystemRestController {
 		
 		SolarSystem theSolarSystem =this.solarSystemService.findById(solarsystemId);
 		if( theSolarSystem == null) {
-			throw new RuntimeException( "Solar System id not found - "+ solarsystemId);
+			throw new SolarSystemNotFoundException( "Solar System id not found - "+ solarsystemId);
 		}
 		
 		return theSolarSystem;
@@ -53,6 +55,7 @@ public class SolarSystemRestController {
 		theSolarSystem.setId(0); // Forces an insert
 		SolarSystem dbSolarSystem = this.solarSystemService.save(theSolarSystem);
 		
+		// TODO Add logic to prevent duplicate and throwing  SolarSystemDuplicateException
 		
 		return dbSolarSystem;
 	}
@@ -61,16 +64,16 @@ public class SolarSystemRestController {
 	public SolarSystem updateSolarSystem( @RequestBody SolarSystem theSolarSystem) {
 		SolarSystem dbSolarSystem = this.solarSystemService.save(theSolarSystem);
 		
-		
+		// TODO add logic to ensure the id is set.
 		return dbSolarSystem;
 	}
 	
-	@DeleteMapping("solarsystems/{SolarSystemId}")
+	@DeleteMapping("solarsystems/{solarSystemId}")
 	public String deleteSolarSystem(@PathVariable int solarSystemId ) {
 		SolarSystem tempSolarSystem = this.solarSystemService.findById(solarSystemId);
 		
 		if (tempSolarSystem == null) {
-			throw new RuntimeException("SolarSystemId not found - " + solarSystemId);
+			throw new SolarSystemNotFoundException("SolarSystemId not found - " + solarSystemId);
 		}
 		
 		this.solarSystemService.deleteById(solarSystemId);
@@ -83,12 +86,12 @@ public class SolarSystemRestController {
 		SolarSystem tempSolarSystem = this.solarSystemService.findById(solarSystemId);
 		
 		if (tempSolarSystem == null) {
-			throw new RuntimeException("SolorSystem id not found - " + solarSystemId);
+			throw new SolarSystemNotFoundException("SolorSystem id not found - " + solarSystemId);
 			
 		}
 		
 		if ( patchPayload.containsKey("id")) {
-			throw new RuntimeException("SolarSystem id not allowed in the request body - " + solarSystemId);
+			throw new SolarSystemInvalidRequestException("SolarSystem id not allowed in the request body - " + solarSystemId);
 		}
 		
 		SolarSystem patchedSolarSystem = apply( patchPayload, tempSolarSystem);
